@@ -1,0 +1,34 @@
+# Data files — too large for Git, never commit raw data
+data/
+*.csv
+*.parquet
+
+# Python compiled files — auto-generated, not your code
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+
+# Jupyter checkpoints — auto-generated
+.ipynb_checkpoints/
+
+# Environment files — contain secrets
+.env
+*.env
+
+# Airflow logs — auto-generated, very large
+airflow/logs/
+
+# Docker volumes — auto-generated
+airflow/plugins/
+
+# IDE settings
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# PySpark wheel file — too large for Git
+*.tar.gz
