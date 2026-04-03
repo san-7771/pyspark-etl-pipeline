@@ -209,19 +209,12 @@ the pipeline twice produces identical results — no duplicate data.
 
 ---
 
-## Background
-
-Built as part of a structured learning journey transitioning from
-Data Analyst (Excel, MySQL, Python, Power BI) to Data Engineer.
-Completed in approximately 5 weeks following the PySpark ETL roadmap.
-
----
 
 ## Author
 
-**Sanyam**
-Data Analyst → Data Engineer
-[GitHub](https://github.com/YOUR_USERNAME)
+**Sanyam Jain**
+Data Engineer
+[GitHub](https://github.com/san-7771)
 ```
 
 ---
