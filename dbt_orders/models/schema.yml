@@ -1,0 +1,34 @@
+version: 2
+
+models:
+  - name: country_revenue
+    description: "Revenue aggregated by country — built from Gold ETL layer"
+    columns:
+      - name: country
+        description: "Country name in uppercase"
+        tests:
+          - not_null
+          - unique          # each country appears exactly once
+
+      - name: total_revenue
+        description: "Total net revenue for this country"
+        tests:
+          - not_null
+
+      - name: total_orders
+        description: "Total completed orders for this country"
+        tests:
+          - not_null
+
+  - name: product_performance
+    description: "Revenue and units broken down by product"
+    columns:
+      - name: product
+        description: "Product name in uppercase"
+        tests:
+          - not_null
+
+      - name: revenue_share_pct
+        description: "This product's % of total revenue — should sum to ~100"
+        tests:
+          - not_null

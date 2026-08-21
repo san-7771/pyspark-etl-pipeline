@@ -1,0 +1,40 @@
+version: 2
+
+models:
+  - name: stg_orders
+    description: >
+      Cleaned and standardized orders from the Silver layer.
+      Source: PySpark ETL pipeline → GCS Delta Lake → BigQuery.
+      Contains one row per order with revenue columns derived.
+
+    columns:
+      - name: order_id
+        description: Unique identifier for each order
+        tests:
+          - unique          # no duplicate order_ids
+          - not_null        # every row must have an order_id
+
+      - name: status
+        description: Order status — always uppercase after staging
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['COMPLETED', 'PENDING', 'CANCELLED']
+
+      - name: country
+        description: Country of the order — uppercase
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['INDIA', 'USA', 'UK', 'GERMANY', 'CANADA']
+
+      - name: net_revenue
+        description: Revenue after discount. Always positive.
+        tests:
+          - not_null
+
+      - name: category
+        description: Product category
+        tests:
+          - accepted_values:
+              values: ['ELECTRONICS', 'ACCESSORIES']

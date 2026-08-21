@@ -1,0 +1,23 @@
+name: 'dbt_orders'
+version: '1.0.0'
+config-version: 2
+
+profile: 'dbt_orders'  # matches profiles.yml
+
+model-paths: ["models"]   # where SQL files live
+seed-paths: ["seeds"]     # where CSV seeds live
+test-paths: ["tests"]     # where custom tests live
+macro-paths: ["macros"]   # where macros live
+
+models:
+  dbt_orders:
+    # Materialization strategy per folder:
+    # table   → CREATE TABLE (persisted, good for Gold layer)
+    # view    → CREATE VIEW (not persisted, good for lightweight transforms)
+    # incremental → only process new records (most efficient for large tables)
+
+    staging:              # models/staging/ folder
+      +materialized: view # staging models = views (lightweight, always fresh)
+
+    marts:                # models/marts/ folder
+      +materialized: table # mart models = tables (persisted, fast to query)

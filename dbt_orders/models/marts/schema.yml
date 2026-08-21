@@ -1,0 +1,38 @@
+version: 2
+
+models:
+  - name: mart_revenue_by_country
+    description: >
+      Country-level revenue aggregation for completed orders only.
+      Used by executive dashboards and regional performance reports.
+      Rebuilt daily by dbt run.
+
+    columns:
+      - name: country
+        description: Country name (uppercase)
+        tests:
+          - unique
+          - not_null
+      - name: total_revenue
+        tests:
+          - not_null
+      - name: revenue_rank
+        description: Country ranked by total revenue (1 = highest)
+        tests:
+          - not_null
+          - unique
+
+  - name: mart_revenue_by_product
+    description: >
+      Product-level revenue aggregation including discount analysis.
+      Used by product and pricing teams.
+
+    columns:
+      - name: product
+        tests:
+          # - unique
+          - not_null
+      - name: discount_rate_pct
+        description: Percentage of gross revenue discounted (0-100)
+        tests:
+          - not_null

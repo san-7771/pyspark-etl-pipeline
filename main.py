@@ -3,8 +3,8 @@ from config.config         import *
 from utils.spark_session   import get_spark_session
 from utils.data_quality    import run_silver_quality_checks  # ← ADD THIS
 from extract.extract       import extract_orders, save_bronze
-from transform.transform   import clean_orders, enrich_orders, save_silver
-from load.load             import build_gold, save_gold
+from transform.transform   import clean_orders, enrich_orders, save_silver, export_silver_for_dbt
+from load.load             import build_gold, save_gold, export_gold_for_bigquery
 
 logging.basicConfig(level=logging.INFO,
                     format="%(asctime)s | %(levelname)s | %(message)s")
@@ -39,6 +39,22 @@ def run_pipeline():
     log.info("--- PHASE: LOAD ---")
     gold_df = build_gold(enriched_df)
     save_gold(gold_df, GOLD_PATH)
+
+    export_silver_for_dbt(
+        spark,
+        SILVER_PATH,
+        bq_table="de-learning-project-499519.orders_warehouse.silver_orders",
+        temp_gcs_bucket="de-pipeline-sanyam-2026"
+    )
+
+    # BQ_EXPORT_PATH = f"{GCS_BUCKET}/gold_bq_export/orders_summary"
+    # export_gold_for_bigquery(spark, GOLD_PATH, BQ_EXPORT_PATH)
+    export_gold_for_bigquery(
+        spark,
+        GOLD_PATH,
+        bq_table="de-learning-project-499519.orders_warehouse.gold_orders_summary",
+        temp_gcs_bucket="de-pipeline-sanyam-2026"
+    )
 
     log.info("=" * 50)
     log.info("ETL PIPELINE COMPLETED SUCCESSFULLY ✅")

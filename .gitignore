@@ -32,3 +32,5 @@ Thumbs.db
 
 # PySpark wheel file — too large for Git
 *.tar.gz
+
+gcp-key.json

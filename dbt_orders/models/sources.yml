@@ -1,0 +1,68 @@
+version: 2
+
+sources:
+  - name: raw                              # logical name for this source group
+    database: de-learning-project-499519   # GCP project
+    schema: orders_warehouse               # BigQuery dataset
+    description: "Raw data loaded from ETL pipeline"
+
+    tables:
+      - name: gold_orders_summary          # existing BQ table from your pipeline
+        description: "Gold layer — aggregated orders from PySpark ETL"
+        columns:
+          - name: country
+            description: "Customer country, uppercase"
+            tests:
+              - not_null
+              - accepted_values:
+                  values: ['INDIA', 'USA', 'UK', 'GERMANY', 'CANADA']
+
+          - name: product
+            description: "Product name, uppercase"
+            tests:
+              - not_null
+
+          - name: total_revenue
+            description: "Net revenue after discount"
+            tests:
+              - not_null
+
+          - name: order_count
+            description: "Number of completed orders"
+            tests:
+              - not_null
+      
+      - name: silver_orders
+        description: "Silver layer — Row-level data = one row per individual event/transaction/order from PySpark ETL"
+        columns:
+          - name: order_id
+            description: Unique identifier for each order
+            tests:
+              - unique          # no duplicate order_ids
+              - not_null        # every row must have an order_id
+
+          - name: status
+            description: Order status — always uppercase after staging
+            tests:
+              - not_null
+              - accepted_values:
+                  values: ['COMPLETED', 'PENDING', 'CANCELLED']
+
+          - name: country
+            description: Country of the order — uppercase
+            tests:
+              - not_null
+              - accepted_values:
+                  values: ['INDIA', 'USA', 'UK', 'GERMANY', 'CANADA']
+
+          - name: net_revenue
+            description: Revenue after discount. Always positive.
+            tests:
+              - not_null
+
+          - name: category
+            description: Product category
+            tests:
+              - not_null
+              - accepted_values:
+                  values: ['Electronics', 'Accessories']

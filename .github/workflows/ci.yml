@@ -1,0 +1,72 @@
+name: ETL Pipeline CI
+
+# When does this workflow run?
+# on every push to any branch
+# on every pull request targeting main branch
+on:
+  push:
+    branches: ["*"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  test:
+    # GitHub provides a free Ubuntu machine to run this on
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Get your code onto the GitHub machine
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Step 2: Install Python
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      # Step 3: Install Java (PySpark needs it, even in CI)
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: "11"
+          distribution: "temurin"
+
+      # Step 4: Install Python dependencies
+      - name: Install dependencies
+        run: |
+          pip install pyspark==3.5.0
+          pip install delta-spark==3.0.0
+          pip install pytest
+          pip install dbt-bigquery
+
+      # Step 5: Run your unit tests
+      # These run WITHOUT needing GCP credentials
+      # because they use local fake DataFrames
+      - name: Run pytest
+        run: |
+          cd etl_project
+          pytest tests/ -v --tb=short
+
+      # Step 6: Compile dbt models (checks SQL syntax without running)
+      # Uses GCP credentials stored as GitHub Secret (set up below)
+      - name: dbt compile
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCP_KEY_JSON }}
+        run: |
+          cd etl_project/dbt_orders
+          echo "$GOOGLE_APPLICATION_CREDENTIALS" > /tmp/gcp-key.json
+          export GOOGLE_APPLICATION_CREDENTIALS=/tmp/gcp-key.json
+          dbt compile
+
+      # Step 7: Run dbt tests against real BigQuery data
+      # Only runs on pushes to main (not feature branches)
+      - name: dbt test
+        if: github.ref == 'refs/heads/main'
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCP_KEY_JSON }}
+        run: |
+          cd etl_project/dbt_orders
+          echo "$GOOGLE_APPLICATION_CREDENTIALS" > /tmp/gcp-key.json
+          export GOOGLE_APPLICATION_CREDENTIALS=/tmp/gcp-key.json
+          dbt test
