@@ -45,7 +45,6 @@ jobs:
       # because they use local fake DataFrames
       - name: Run pytest
         run: |
-          # cd etl_project
           pytest tests/ -v --tb=short
 
       # Step 6: Compile dbt models (checks SQL syntax without running)
@@ -54,7 +53,7 @@ jobs:
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCP_KEY_JSON }}
         run: |
-          cd etl_project/dbt_orders
+          cd dbt_orders
           echo "$GOOGLE_APPLICATION_CREDENTIALS" > /tmp/gcp-key.json
           export GOOGLE_APPLICATION_CREDENTIALS=/tmp/gcp-key.json
           dbt compile
