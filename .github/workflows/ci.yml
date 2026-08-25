@@ -54,8 +54,27 @@ jobs:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCP_KEY_JSON }}
         run: |
           cd dbt_orders
+
           echo "$GOOGLE_APPLICATION_CREDENTIALS" > /tmp/gcp-key.json
-          export GOOGLE_APPLICATION_CREDENTIALS=/tmp/gcp-key.json
+
+          mkdir -p ~/.dbt
+
+          cat > ~/.dbt/profiles.yml <<EOF
+          dbt_orders:
+            target: dev
+            outputs:
+              dev:
+                type: bigquery
+                method: service-account
+                keyfile: /tmp/gcp-key.json
+                project: de-learning-project-499519
+                dataset: orders_warehouse
+                threads: 4
+                timeout_seconds: 300
+                location: asia-south2
+                priority: interactive
+          EOF
+
           dbt compile
 
       # Step 7: Run dbt tests against real BigQuery data
@@ -65,7 +84,26 @@ jobs:
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCP_KEY_JSON }}
         run: |
-          cd etl_project/dbt_orders
+          cd dbt_orders
+
           echo "$GOOGLE_APPLICATION_CREDENTIALS" > /tmp/gcp-key.json
-          export GOOGLE_APPLICATION_CREDENTIALS=/tmp/gcp-key.json
+
+          mkdir -p ~/.dbt
+
+          cat > ~/.dbt/profiles.yml <<EOF
+          dbt_orders:
+            target: dev
+            outputs:
+              dev:
+                type: bigquery
+                method: service-account
+                keyfile: /tmp/gcp-key.json
+                project: de-learning-project-499519
+                dataset: orders_warehouse
+                threads: 4
+                timeout_seconds: 300
+                location: asia-south2
+                priority: interactive
+          EOF
+
           dbt test
