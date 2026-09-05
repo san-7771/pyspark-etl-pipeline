@@ -34,3 +34,9 @@ Thumbs.db
 *.tar.gz
 
 gcp-key.json
+
+
+terraform/.terraform/
+terraform/.terraform.lock.hcl
+*.tfstate
+*.tfstate.backup
